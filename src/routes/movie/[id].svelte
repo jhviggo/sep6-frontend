@@ -14,7 +14,6 @@
       .then((value) => {
         actors = value.cast.sort((a,b) => b.popularity - a.popularity);
         directors = value.crew.filter((c) => c.job === 'Director');
-        console.log(directors);
       });
 	});
 
