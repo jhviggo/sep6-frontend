@@ -9,7 +9,7 @@
         <p>Study</p>
         <img class="via-logo" src="/img/via.png" alt="VIA University College"/>
       </div>
-      <div class="col area">
+      <div class="col-auto area">
         <p>About us</p>
         <a href="https://github.com/jannikschwarz">
           <img class="github-logo" src="/img/github.png" alt="Github"/>
