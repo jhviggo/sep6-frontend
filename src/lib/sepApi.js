@@ -6,6 +6,7 @@ const instance = axios.create({
   baseURL: BASE_URL,
 });
 
+// Auth
 async function login(email, password) {
   try {
     const response = await instance.post('/login', {
@@ -35,6 +36,7 @@ async function signup(username, email, password) {
   }
 }
 
+// Favorites
 async function addToFavorites(uid, movie) {
   const JWT = sessionStorage.getItem('JWT');
   try {
@@ -54,8 +56,42 @@ async function addToFavorites(uid, movie) {
   }
 }
 
+async function getFavorites(uid) {
+  const JWT = sessionStorage.getItem('JWT');
+  try {
+    const response = await instance.get(`/user/${uid}/favorite`, {
+      headers: {
+        'Authorization': `Bearer ${JWT}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.log('get favorites error:', error);
+    return false;
+  }
+}
+
+async function removeFavorite(uid, movie) {
+  const JWT = sessionStorage.getItem('JWT');
+  try {
+    const response = await instance.delete(`/user/${uid}/favorite`, 
+    {
+      data: movie,
+      headers: {
+        'Authorization': `Bearer ${JWT}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    console.log('delete favorite error:', error);
+    return false;
+  }
+}
+
 export {
   login,
   signup,
   addToFavorites,
+  getFavorites,
+  removeFavorite,
 };
