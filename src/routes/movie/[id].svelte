@@ -2,14 +2,19 @@
   import { onMount } from 'svelte';
   import { page } from '$app/stores';
   import { getMovie, getCredits } from '../../lib/movieApi';
+  import { addToFavorites } from '../../lib/sepApi';
 
   let movie;
   let actors;
   let actorsFolded = true;
   let directors;
+  let favoriteError;
 
   onMount(async () => {
-		getMovie($page.params.id).then((value) => movie = value);
+		getMovie($page.params.id).then((value) => {
+      movie = value
+      console.log(movie);
+    });
     getCredits($page.params.id)
       .then((value) => {
         actors = value.cast.sort((a,b) => b.popularity - a.popularity);
@@ -19,6 +24,22 @@
 
   function toggleFold() {
     actorsFolded = !actorsFolded;
+  }
+
+  async function btnAddToFavorites() {
+    const uid = sessionStorage.getItem('uid');
+    if (!uid) {
+      favoriteError = "Please login first";
+      return;
+    }
+    const response = await addToFavorites(uid, movie);
+
+    if (!response) {
+      favoriteError = "Something went wrong!";
+      return;
+    }
+
+    favoriteError = '';
   }
 </script>
 
@@ -88,8 +109,18 @@
           </div>
         </div>
       </div>
-      <div class="detail shadow p-2 ms-2">
-        <p class="detail-header">Ratings</p>
+      <div class="ms-2">
+        <div class="info-panel detail shadow p-2 mb-2">
+          <p class="detail-header">Add as a favorite!</p>
+          <p>You can add movies to your personal top list! Doing this will make it easier to find later, simply navigate to the <a href="/top-list">top list page</a>.</p>
+          <button class="btn btn-outline-success" on:click={btnAddToFavorites}>Add to favorite</button>
+          {#if favoriteError}
+            <p class="alert alert-danger mt-3" role="alert">{favoriteError}</p>
+          {/if}
+        </div>
+        <div class="info-panel detail shadow p-2">
+          <p class="detail-header">Ratings</p>
+        </div>
       </div>
     </div>
     <div class="comments detail mt-2 p-2">
@@ -140,6 +171,10 @@
   .detail {
     background-color: white;
     border-radius: 8px;
+  }
+
+  .info-panel {
+    height: 50%;
   }
 
   .actors {

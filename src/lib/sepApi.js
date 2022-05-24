@@ -35,7 +35,27 @@ async function signup(username, email, password) {
   }
 }
 
+async function addToFavorites(uid, movie) {
+  const JWT = sessionStorage.getItem('JWT');
+  try {
+    const response = await instance.post(`/user/${uid}/favorite`, {
+      'movieId': movie.id,
+      'imageUrl': movie.poster_path,
+    },
+    {
+      headers: {
+        'Authorization': `Bearer ${JWT}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    console.log('add favorite error:', error);
+    return false;
+  }
+}
+
 export {
   login,
   signup,
+  addToFavorites,
 };
