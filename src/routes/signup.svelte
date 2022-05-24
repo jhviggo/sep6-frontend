@@ -1,5 +1,5 @@
 <script>
-  import { signup } from '../lib/userApi';
+  import { signup } from '../lib/sepApi';
 
   let username, email, password, rpassword;
   let errorText;

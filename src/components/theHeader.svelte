@@ -1,6 +1,6 @@
 <script>
   import { onMount } from 'svelte';
-  import { login } from '../lib/userApi';
+  import { login } from '../lib/sepApi';
   
   let loginIsHidden = true;
   let email;
