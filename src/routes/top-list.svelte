@@ -3,21 +3,24 @@
   import Card from '../components/card.svelte';
   import { getFavorites, removeFavorite } from '../lib/sepApi';
 
-  let favorites;
+  let favorites = [];
   let favoritesError;
   let loading = true;
+  let uid;
 
   onMount(async() => {
-    const uid = sessionStorage.getItem('uid');
+    uid = sessionStorage.getItem('uid');
     if (!uid) {
       favoritesError = "Please log in";
+      favorites = [];
+      loading = false;
+      return
     }
     favorites = await getFavorites(uid);
     loading = false;
 	});
 
   async function btnRemoveFavorite(favoriteMovie) {
-    console.log('favoriteMovie', favoriteMovie);
     const uid = sessionStorage.getItem('uid');
     const response = await removeFavorite(uid, favoriteMovie);
     if (!response) {
@@ -53,7 +56,7 @@
       {favoritesError}
     </div>
   {/if}
-  {#if !loading && !favorites.length}
+  {#if !loading && !favorites.length && uid}
     <div class="alert alert-warning mt-5" role="alert">
       Your top list appears to be empty, please head to the <a href="/">Home</a> page to find some movies!
     </div>
