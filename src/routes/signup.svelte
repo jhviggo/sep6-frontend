@@ -30,10 +30,16 @@
       return;
     }
     const response = await signup(username, email, password);
-    console.log(response);
-    if (!response) {
-      errorText = "Unable to sign up user, please try another Email";
+    console.log('here', response);
+    if (response?.response?.status === 400) {
+      errorText = `Unable to sign up user because of ${response.response?.data?.replace('Firebase: ', '')}`;
+      return;
     }
+    errorText = '';
+    sessionStorage.setItem('email', email);
+    sessionStorage.setItem('uid', response.data.uid);
+    sessionStorage.setItem('JWT', response.data.accessToken);
+    window.location.href = '/';
   }
 </script>
 

@@ -29,10 +29,10 @@ async function signup(username, email, password) {
       password,
     });
     if (!response.data.uid) throw new Error('Unable to sign up');
-    return response.data;
+    return response;
   } catch (error) {
     console.log('signup error:', error);
-    return false;
+    return error;
   }
 }
 
@@ -43,6 +43,7 @@ async function addToFavorites(uid, movie) {
     const response = await instance.post(`/user/${uid}/favorite`, {
       'movieId': movie.id,
       'imageUrl': movie.poster_path,
+      'title': movie.title
     },
     {
       headers: {
