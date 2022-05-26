@@ -63,9 +63,6 @@
     <a class="nav-link" aria-current="page" href="/">Home</a>
   </li>
   <li class="nav-item mx-1">
-    <a class="nav-link" aria-current="page" href="/profile">Profile</a>
-  </li>
-  <li class="nav-item mx-1">
     <a class="nav-link" aria-current="page" href="/top-list">Top list</a>
   </li>
   {#if !isLoggedIn}

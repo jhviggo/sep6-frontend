@@ -7,13 +7,13 @@ const instance = axios.create({
   baseURL: BASE_URL,
 });
 
-async function getPopularMovies() {
-  const res = await instance.get(`/movie/popular?api_key=${API_KEY}`);
+async function getPopularMovies(page) {
+  const res = await instance.get(`/movie/popular?api_key=${API_KEY}&page=${page}`);
   return res.data.results;
 }
 
-async function searchMovies(term) {
-  const res = await instance.get(`/search/movie?api_key=${API_KEY}&query=${term}`);
+async function searchMovies(term, page) {
+  const res = await instance.get(`/search/movie?api_key=${API_KEY}&query=${term}&page=${page}`);
   return res.data.results;
 }
 
