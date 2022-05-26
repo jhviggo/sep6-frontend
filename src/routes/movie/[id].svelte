@@ -6,7 +6,6 @@
 
   let movie;
   let actors;
-  let actorsFolded = true;
   let directors;
   let favoriteError;
   let text;
@@ -36,10 +35,6 @@
       // cheeky sort, since firebase doesn't order
       comments = response.data?.sort((a, b) => a.timestamp < b.timestamp ? 1 : -1);
     }
-  }
-
-  function toggleFold() {
-    actorsFolded = !actorsFolded;
   }
 
   async function btnAddToFavorites() {
@@ -83,14 +78,14 @@
           <span class="sub-header">{movie.release_date.split('-')[0]} - {parseInt(movie.runtime / 60)}h {movie.runtime & 60}m</span>
           <img src="https://image.tmdb.org/t/p/w500/{movie.poster_path}" alt={movie.title} width="100%"/>
         </div>
-        <div class="detail shadow p-2 mb-2 mt-2">
+        <div class="detail shadow p-2 mt-2">
           {movie.overview}
         </div>
       </div>
       <div class="ps-2">
-        <div class="detail shadow p-2 mb-2">
+        <div class="detail shadow p-2 mb-2" style="height: 69%;">
           <p class="detail-header">Actors</p>
-          <div class="actors {actorsFolded ? 'folded' : ''}">
+          <div class="actors">
             {#if actors}
               {#each actors as actor}
                 <div class="actor mt-1">
@@ -112,11 +107,8 @@
               </div>
             {/if}
           </div>
-          <div class="btn-unfold" on:click={toggleFold}>
-            See {actorsFolded ? 'more' : 'less'}
-          </div>
         </div>
-        <div class="detail shadow p-2 mb-2">
+        <div class="detail shadow p-2" style="height: 30%;">
           <p class="detail-header">Director</p>
           <div class="actors">
             {#if directors}
@@ -151,10 +143,15 @@
         </div>
         <div class="info-panel detail shadow p-2">
           <p class="detail-header">Ratings</p>
+          <div class="stars-container">
+            <p class="stars" style="width: {movie.vote_average * 10}%;">⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐</p>
+          </div>
+          <p><span class="orangered">Stars:</span> {movie.vote_average}/10</p>
+          <p><span class="orangered">Ratings:</span>{movie.vote_count}</p>
         </div>
       </div>
     </div>
-    <div class="comments detail shadow mt-2 p-2">
+    <div class="comments detail shadow mt-3 p-2">
       <textarea type="text" placeholder="Add a comment..." cols="40" rows="5" bind:value={text}/>
       <button class="btn btn-outline-success" on:click={btnAddComment}>Add comment</button>
     </div>
@@ -214,13 +211,15 @@
   }
 
   .info-panel {
-    height: 50%;
+    height: 49.5%;
   }
 
   .actors {
     display: grid;
-    overflow: hidden;
+    overflow-y: scroll;
     grid-template-columns: 1fr 1fr;
+    scrollbar-width: thin;
+    max-height: 23rem;
   }
 
   .actor {
@@ -246,22 +245,6 @@
     color: orangered;
   }
 
-  .folded {
-    max-height: 25rem;
-    mask-image: linear-gradient(180deg, #000 75%, transparent);
-    -webkit-mask-image: linear-gradient(180deg, #000 75%, transparent);
-  }
-
-  .btn-unfold {
-    display: flex;
-    justify-content: center;
-    user-select: none;
-  }
-
-  .btn-unfold:hover {
-    cursor: pointer;
-  }
-
   .comments {
     display: flex;
     flex-direction: column;
@@ -280,6 +263,14 @@
 
   .comment:not(:last-child) {
     border-bottom: 1px solid lightgray;
+  }
+
+  .stars-container {
+    width: fit-content;
+  }
+
+  .stars {
+    overflow: hidden;
   }
 
   .user {
