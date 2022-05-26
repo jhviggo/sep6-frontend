@@ -88,10 +88,43 @@ async function removeFavorite(uid, movie) {
   }
 }
 
+// comments
+async function addComment(uid, movieId, text) {
+  const JWT = sessionStorage.getItem('JWT');
+  const email = sessionStorage.getItem('email');
+  try {
+    const response = await instance.post(`/comments/${movieId}/`, {
+      movieId,
+      userId: uid,
+      text,
+      userName: email
+    },
+    {
+      headers: {
+        'Authorization': `Bearer ${JWT}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    return false;
+  }
+}
+
+async function getComments(movieId) {
+  try {
+    const response = await instance.get(`/comments/${movieId}`);
+    return response
+  } catch (error) {
+    return false;
+  }
+}
+
 export {
   login,
   signup,
   addToFavorites,
   getFavorites,
   removeFavorite,
+  addComment,
+  getComments,
 };

@@ -2,25 +2,41 @@
   import { onMount } from 'svelte';
   import { page } from '$app/stores';
   import { getMovie, getCredits } from '../../lib/movieApi';
-  import { addToFavorites } from '../../lib/sepApi';
+  import { addToFavorites, addComment, getComments } from '../../lib/sepApi';
 
   let movie;
   let actors;
   let actorsFolded = true;
   let directors;
   let favoriteError;
+  let text;
+  let comments = [];
+
+  // polling
+  setInterval(async () => {
+    await updateComments();
+  }, 5000);
 
   onMount(async () => {
-		getMovie($page.params.id).then((value) => {
+		getMovie($page.params.id).then(async(value) => {
       movie = value
-      console.log(movie);
     });
     getCredits($page.params.id)
       .then((value) => {
         actors = value.cast.sort((a,b) => b.popularity - a.popularity);
         directors = value.crew.filter((c) => c.job === 'Director');
       });
+
+    updateComments();
 	});
+
+  async function updateComments() {
+    const response = await getComments($page.params.id);
+    if (response) {
+      // cheeky sort, since firebase doesn't order
+      comments = response.data?.sort((a, b) => a.timestamp < b.timestamp ? 1 : -1);
+    }
+  }
 
   function toggleFold() {
     actorsFolded = !actorsFolded;
@@ -40,6 +56,21 @@
     }
 
     favoriteError = '';
+  }
+
+  async function btnAddComment() {
+    if (text?.length <= 0) {
+      return;
+    }
+    const uid = sessionStorage.getItem('uid');
+    await addComment(uid, movie.id, text);
+    updateComments();
+    text = '';
+  }
+
+  function displayDateTime(timestamp) {
+    const dt = new Date(timestamp);
+    return `${dt.getDay()}/${dt.getMonth()}-${dt.getFullYear()} ${dt.getHours()}:${dt.getMinutes() || '00'}`;
   }
 </script>
 
@@ -123,8 +154,17 @@
         </div>
       </div>
     </div>
-    <div class="comments detail mt-2 p-2">
-      <textarea type="text" placeholder="Add a comment..." cols="40" rows="5"/>
+    <div class="comments detail shadow mt-2 p-2">
+      <textarea type="text" placeholder="Add a comment..." cols="40" rows="5" bind:value={text}/>
+      <button class="btn btn-outline-success" on:click={btnAddComment}>Add comment</button>
+    </div>
+    <div class="comments detail shadow mt-2 p-2">
+      {#each comments as comment}
+        <div class="comment">
+          <span class="user ps-2">{comment.userName}</span> <small>{displayDateTime(comment.timestamp)}</small>
+          <p>{comment.text}</p>
+        </div>
+      {/each}
     </div>
   {:else}
     <div class="spinner">
@@ -224,15 +264,26 @@
 
   .comments {
     display: flex;
+    flex-direction: column;
+    width: 45%;
   }
 
   .comments textarea {
     border: none;
     border-bottom: 1px solid gray;
-    width: 25%;
+    width: 100%;
   }
 
   .comments textarea:focus {
     outline: none;
+  }
+
+  .comment:not(:last-child) {
+    border-bottom: 1px solid lightgray;
+  }
+
+  .user {
+    color: orangered;
+    text-decoration: underline;
   }
 </style>

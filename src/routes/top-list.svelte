@@ -17,7 +17,6 @@
 	});
 
   async function btnRemoveFavorite(favoriteMovie) {
-    console.log('favoriteMovie', favoriteMovie);
     const uid = sessionStorage.getItem('uid');
     const response = await removeFavorite(uid, favoriteMovie);
     if (!response) {
