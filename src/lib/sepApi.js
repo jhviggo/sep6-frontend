@@ -120,6 +120,23 @@ async function getComments(movieId) {
   }
 }
 
+async function deleteComment(movieId, commentId) {
+  const JWT = sessionStorage.getItem('JWT');
+  const uid = sessionStorage.getItem('uid');
+  try {
+    await instance.delete(`/comments/${movieId}/${commentId}`, {
+      data: {
+        userId: uid,
+      },
+      headers: {
+        'Authorization': `Bearer ${JWT}`,
+      },
+    });
+  } catch (error) {
+    return false;
+  }
+}
+
 export {
   login,
   signup,
@@ -128,4 +145,5 @@ export {
   removeFavorite,
   addComment,
   getComments,
+  deleteComment,
 };

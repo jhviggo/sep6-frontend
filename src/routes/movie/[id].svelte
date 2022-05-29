@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { page } from '$app/stores';
   import { getMovie, getCredits } from '../../lib/movieApi';
-  import { addToFavorites, addComment, getComments } from '../../lib/sepApi';
+  import { addToFavorites, addComment, getComments, deleteComment } from '../../lib/sepApi';
 
   let movie;
   let actors;
@@ -10,13 +10,15 @@
   let favoriteError;
   let text;
   let comments = [];
+  let userEmail;
 
   // polling
   setInterval(async () => {
     await updateComments();
-  }, 5000);
+  }, 10000);
 
   onMount(async () => {
+    userEmail = sessionStorage.getItem('email');
 		getMovie($page.params.id).then(async(value) => {
       movie = value
     });
@@ -44,7 +46,6 @@
       return;
     }
     const response = await addToFavorites(uid, movie);
-
     if (!response) {
       favoriteError = "Something went wrong!";
       return;
@@ -66,6 +67,14 @@
   function displayDateTime(timestamp) {
     const dt = new Date(timestamp);
     return `${dt.getDay()}/${dt.getMonth()}-${dt.getFullYear()} ${dt.getHours()}:${dt.getMinutes() || '00'}`;
+  }
+
+  async function btnRemoveComment(id, _email) {
+    if (_email !== userEmail) {
+      return;
+    }
+    await deleteComment(movie.id, id);
+    await updateComments();
   }
 </script>
 
@@ -158,7 +167,11 @@
     <div class="comments detail shadow mt-2 p-2">
       {#each comments as comment}
         <div class="comment">
-          <span class="user ps-2">{comment.userName}</span> <small>{displayDateTime(comment.timestamp)}</small>
+          <div class="comment-header">
+            <span class="user ps-2">{comment.userName}</span>
+            <small>{displayDateTime(comment.timestamp)}</small>
+            <span class="close" on:click={() => btnRemoveComment(comment.commentId, comment.userName)}>X</span>
+          </div>
           <p>{comment.text}</p>
         </div>
       {/each}
@@ -263,6 +276,20 @@
 
   .comment:not(:last-child) {
     border-bottom: 1px solid lightgray;
+  }
+
+  .comment-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .close {
+    cursor: pointer;
+  }
+
+  .close:hover {
+    color: orangered;
   }
 
   .stars-container {
